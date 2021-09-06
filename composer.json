@@ -1,0 +1,22 @@
+{
+    "name": "salazarcode/ratchet-chat",
+    "description": "Un simple chat con ratchet para hacer el hola mundo del Real Time",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "RatchetChat\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Andrés",
+            "email": "andresalteclado@hotmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "cboden/ratchet": "^0.4.3",
+        "vlucas/phpdotenv": "^5.3"
+    }
+}
