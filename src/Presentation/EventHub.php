@@ -14,7 +14,7 @@ class EventHub implements MessageComponentInterface
 
     public function __construct() 
     {
-        $this->clients = new \SplObjectStorage;
+        $this->connections = new \SplObjectStorage;
         $this->app = new App();
         $this->authenticator = new Authenticator();
     }
@@ -24,6 +24,7 @@ class EventHub implements MessageComponentInterface
         try
         {            
             $this->authenticator->Authenticate($newConn);
+            $this->app->logger->info("Se agregó un nuevo cliente con id de resource: $newConn->resourceId");
             $this->connections->attach($newConn);
             echo "New connection! ({$newConn->resourceId})\n\n";
         }
@@ -52,7 +53,7 @@ class EventHub implements MessageComponentInterface
     {
         try 
         {
-            $this->clients->detach($conn);
+            $this->connections->detach($conn);
 
             echo "Connection {$conn->resourceId} has disconnected*************************************************\n\n";
         } 
