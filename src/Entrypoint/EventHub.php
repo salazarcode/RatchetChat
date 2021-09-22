@@ -1,32 +1,28 @@
 <?PHP
-namespace RatchetChat\Presentation;
+namespace RatchetChat\Entrypoint;
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use RatchetChat\App;
-use RatchetChat\Auth\Authenticator;
 
 class EventHub implements MessageComponentInterface 
 {
     protected $connections;
     protected $authenticator;
     protected $app;
+    public $di;
 
     public function __construct() 
     {
-        $this->connections = new \SplObjectStorage;
-        $this->app = new App();
-        $this->authenticator = new Authenticator();
+        $this->app = new App(new \SplObjectStorage());
+        $this->app->logger->info("Arranca el Hub ");
     }
 
     public function onOpen(ConnectionInterface $newConn) 
     {
         try
         {            
-            $this->authenticator->Authenticate($newConn);
-            $this->app->logger->info("Se agregó un nuevo cliente con id de resource: $newConn->resourceId");
-            $this->connections->attach($newConn);
-            echo "New connection! ({$newConn->resourceId})\n\n";
+            $this->app->HandleOpen($newConn);
         }
         catch(\Exception $ex)
         {
@@ -38,9 +34,7 @@ class EventHub implements MessageComponentInterface
     {
         try 
         {
-            $objMsg = json_decode($msg, true);
-
-            $this->app->HandleMessage($from, $objMsg);
+            $this->app->HandleMessage($from, $msg);
         } 
         catch (\Exception $ex) 
         {
@@ -53,9 +47,7 @@ class EventHub implements MessageComponentInterface
     {
         try 
         {
-            $this->connections->detach($conn);
-
-            echo "Connection {$conn->resourceId} has disconnected*************************************************\n\n";
+            $this->app->HandleClose($conn);
         } 
         catch (\Exception $ex) 
         {

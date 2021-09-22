@@ -1,8 +1,19 @@
 <?php
 namespace RatchetChat\Controllers;
 
-class AppController{
+use RatchetChat\Repositories\AppRepository;
 
-    public function __construct(){
+class AppController
+{
+    private $repo;
+
+    public function __construct($context)
+    {
+        $this->repo = new AppRepository($context);
+    }
+
+    public function Create($input)
+    {
+        $entity = $this->repo->Create($input);
     }
 }

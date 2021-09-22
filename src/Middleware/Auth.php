@@ -1,8 +1,9 @@
 <?PHP
 
-namespace RatchetChat\Auth;
+namespace RatchetChat\Middleware;
 
-class Authenticator{
+class Auth
+{
 
     public function __construct(){
 
