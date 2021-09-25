@@ -1,0 +1,21 @@
+{
+    "name": "salazarcode/php-socket-client",
+    "description": "Un cliente PHP para sockets",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PhpSocketClient\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Andrés",
+            "email": "andresalteclado@hotmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "ratchet/pawl": "^0.3.5"
+    }
+}

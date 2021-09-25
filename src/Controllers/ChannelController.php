@@ -2,6 +2,7 @@
 namespace RatchetChat\Controllers;
 use RatchetChat\Repositories\ChannelRepository;
 use RatchetChat\Transversal\Util;
+use RatchetChat\Domain\User;
 
 class ChannelController{
     private $repo;
@@ -28,6 +29,18 @@ class ChannelController{
         try 
         {            
             return $this->repo->All();
+        } 
+        catch (\Exception $ex) 
+        {
+            throw $ex;
+        }
+    }
+
+    public function AddUserToChannel(User $usuario, $channel_id)
+    {
+        try 
+        {            
+            return $this->repo->AddUserToChannel($usuario, $channel_id);
         } 
         catch (\Exception $ex) 
         {

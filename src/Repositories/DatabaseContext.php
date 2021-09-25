@@ -54,12 +54,20 @@ class DatabaseContext
         }
     }
 
-    public function Insert(String $sql, Array $data)
+    public function Insert(String $sql, Array $data, bool $returnID = true)
     {
         try 
         {
             $q = $this->conn->prepare($sql);
             $q->execute($data);
+
+            if($returnID)
+            {
+                $res = $this->Select("select last_insert_id() ID;");
+                $newID = $res[0]["ID"];
+
+                return $newID;                
+            }
         }
         catch (\Exception $ex) 
         {

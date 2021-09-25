@@ -14,7 +14,7 @@ class EventHub implements MessageComponentInterface
 
     public function __construct() 
     {
-        $this->app = new App(new \SplObjectStorage());
+        $this->app = new App();
         $this->app->logger->info("Arranca el Hub ");
     }
 

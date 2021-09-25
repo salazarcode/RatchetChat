@@ -1,6 +1,7 @@
 <?php
 namespace RatchetChat\Repositories;
-use RatchetChat\Transversal\Util;
+use RatchetChat\Domain\Message;
+use RatchetChat\Domain\Channel;
 
 class MessageRepository
 {
@@ -11,14 +12,15 @@ class MessageRepository
         $this->db = $context;
     }
 
-    public function Create($channel_id, $usuario_id, $text)
+    public function Create(Message $message)
     {
         try 
         {            
+            echo "Se esta creando teoricamente con: ({$message->channel_id}, {$message->usuario_id}, {$message->text})\n\n";
             $res = $this->db->Insert("INSERT INTO MESSAGES(CHANNEL_ID, USUARIO_ID, TEXT) VALUES(:CHANNEL_ID, :USUARIO_ID, :TEXT)", [ 
-                "CHANNEL_ID" => $channel_id,
-                "USUARIO_ID" => $usuario_id,
-                "TEXT" => $text
+                "CHANNEL_ID" => $message->channel_id,
+                "USUARIO_ID" => $message->usuario_id,
+                "TEXT" => $message->text
             ]);
             return $res;
         } 
@@ -28,14 +30,27 @@ class MessageRepository
         }
     }
 
-    public function GetByChannelId($channel_id)
+    public function GetByChannel(Channel $channel)
     {
         try 
         {            
             $res = $this->db->Select("SELECT * FROM MESSAGES WHERE CHANNEL_ID = :CHANNEL_ID", [ 
-                "CHANNEL_ID" => $channel_id
+                "CHANNEL_ID" => $channel->channel_id
             ]);
-            return $res;
+
+            $arr = [];
+            foreach ($res as $elem) 
+            {
+                $obj = new Message();
+                $obj->message_id = $elem["message_id"];
+                $obj->text = $elem["text"];
+                $obj->channel_id = $elem["channel_id"];
+                $obj->usuario_id = $elem["usuario_id"];
+
+                $arr[] = $obj;
+            }
+            
+            return $arr;
         } 
         catch (\Exception $ex) 
         {

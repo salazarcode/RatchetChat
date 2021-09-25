@@ -3,6 +3,8 @@ namespace RatchetChat\Controllers;
 use RatchetChat\Repositories\MessageRepository;
 
 use RatchetChat\Transversal\Util;
+use RatchetChat\Domain\Channel;
+use RatchetChat\Domain\Message;
 
 class MessageController{
     private $repo;
@@ -12,11 +14,11 @@ class MessageController{
         $this->repo = new MessageRepository($context);
     }
 
-    public function Create($channel_id, $usuario_id, $text)
+    public function Create(Message $message)
     {
         try 
         {                        
-            return $this->repo->Create($channel_id, $usuario_id, $text);
+            return $this->repo->Create($message);
         } 
         catch (\Exception $ex) 
         {
@@ -24,11 +26,11 @@ class MessageController{
         }
     }
 
-    public function GetByChannelId($channel_id)
+    public function GetByChannel(Channel $channel)
     {
         try 
         {                        
-            return $this->repo->GetByChannelId($channel_id);
+            return $this->repo->GetByChannel($channel);
         } 
         catch (\Exception $ex) 
         {
