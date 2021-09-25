@@ -13,32 +13,32 @@ require 'vendor/autoload.php';
 
     // $input = [
     //     "procedure" => "GET_CHANNEL",
-    //     "channel_id" => 12,
-    //     "usuario_name" => "Andrés",
-    //     "usuario_id" => "2",
+    //     "channel_id" => 18,
+    //     "usuario_name" => "Abimael",
+    //     "usuario_id" => "9",
+    // ];
+
+    // $input = [
+    //     "procedure" => "NEW_CHANNEL",
+    //     "channel_name" => "los power rangers",
+    //     "usuarios" => [
+    //         [
+    //             "user_id" => 25,
+    //             "user_name" => "Abimael"
+    //         ],
+    //         [
+    //             "user_id" => 2,
+    //             "user_name" => "Adrián"
+    //         ],
+    //     ]
     // ];
 
     $input = [
-        "procedure" => "NEW_CHANNEL",
-        "channel_name" => "evangelion 2",
-        "usuarios" => [
-            [
-                "user_id" => 1,
-                "user_name" => "Andrés"
-            ],
-            [
-                "user_id" => 2,
-                "user_name" => "Adrián"
-            ],
-        ]
+        "procedure" => "ADD_MESSAGE",
+        "channel_id" => 18,
+        "user_id" => 9,
+        "text" => "Una segunda vez pasa el milagro"
     ];
-
-    // $input = [
-    //     "procedure" => "ADD_MESSAGE",
-    //     "channel_id" => 12,
-    //     "usuario_id" => 1,
-    //     "text" => "Esta es una prueba de andres"
-    // ];
 
     // $input = [
     //     "procedure" => "ADD_MESSAGE",

@@ -16,13 +16,15 @@ class MessageRepository
     {
         try 
         {            
-            echo "Se esta creando teoricamente con: ({$message->channel_id}, {$message->usuario_id}, {$message->text})\n\n";
-            $res = $this->db->Insert("INSERT INTO MESSAGES(CHANNEL_ID, USUARIO_ID, TEXT) VALUES(:CHANNEL_ID, :USUARIO_ID, :TEXT)", [ 
+            echo "Se esta creando teoricamente con: ({$message->channel_id}, {$message->user_id}, {$message->text})\n\n";
+            $message->message_id = $this->db->Insert("INSERT INTO MESSAGES(CHANNEL_ID, USER_ID, TEXT, DATETIME) VALUES(:CHANNEL_ID, :USER_ID, :TEXT, :DATETIME)", [ 
                 "CHANNEL_ID" => $message->channel_id,
-                "USUARIO_ID" => $message->usuario_id,
-                "TEXT" => $message->text
+                "USER_ID" => $message->user_id,
+                "TEXT" => $message->text,
+                "DATETIME" => $message->datetime
             ]);
-            return $res;
+
+            return $message;
         } 
         catch (\Exception $ex) 
         {
@@ -45,7 +47,7 @@ class MessageRepository
                 $obj->message_id = $elem["message_id"];
                 $obj->text = $elem["text"];
                 $obj->channel_id = $elem["channel_id"];
-                $obj->usuario_id = $elem["usuario_id"];
+                $obj->user_id = $elem["user_id"];
 
                 $arr[] = $obj;
             }

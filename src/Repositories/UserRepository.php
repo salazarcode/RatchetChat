@@ -34,15 +34,16 @@ class UserRepository{
     {
         try 
         {            
-            $res = $this->db->Select("SELECT * FROM USERS WHERE USER_ID = :USER_ID;", [ 
-                "USER_ID" => $user_id,
+            $res = $this->db->Select("SELECT * FROM USERS WHERE USER_EXTERNAL_ID = :USER_EXTERNAL_ID ;", [ 
+                "USER_EXTERNAL_ID" => $user_id,
             ]);
 
             if(count($res))
             {              
                 $user = new User();  
-                $user->user_name = $res["user_name"];
-                $user->user_external_id = $res["user_external_id"];
+                $user->user_id = $res[0]["user_id"];
+                $user->user_name = $res[0]["user_name"];
+                $user->user_external_id = $res[0]["user_external_id"];
 
                 return $user;
             }

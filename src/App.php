@@ -36,9 +36,9 @@ class App
 
     public function __construct()
     {
-        $this->connections = new \SplObjectStorage();
+        $this->connections = [];
         $this->channels = collect([]);
-        $this->usuarios = collect([]);
+        $this->usuariosConectados = [];
 
         $dotenv = Dotenv::createImmutable(__DIR__ . "/../");
         $dotenv->load();
@@ -62,7 +62,14 @@ class App
         {
             //$this->authenticator->Authenticate($newConn);
             $this->logger->info("Se agregó un nuevo cliente con id de resource: $newConn->resourceId");
-            $this->connections->attach($newConn);
+            
+            $this->connections[spl_object_hash( $newConn )] = [ 
+                'connection' => $newConn, 
+                'user_id' => 0,
+                'user_name' => "",
+                'channel_id' => 0 
+            ];
+
             echo "New connection! ({$newConn->resourceId})\n\n";
         } 
         catch (\Exception $ex) 
@@ -90,16 +97,12 @@ class App
                     {
                         $from->send(Util::Warning("Parámetros incompletos"));
                     }
-
-                    //Cuando una persona me solicita el channel desde su PHP privado, 
-                    //se identifica a si mismo, así como al channel al que quiere conectarse
-                    $this->usuariosConectados->push([
-                        "resource" => $from,
-                        "user_id" => $msgArr->usuario_id,
-                        "user_name" => $msgArr->usuario_name,
-                        "channel_id" => $msgArr->channel_id
-                    ]);
                     
+                    $connection = &$this->connections[spl_object_hash($from)];
+                    $connection["channel_id"] = $msgArr->channel_id;
+                    $connection["user_id"] = $msgArr->user_id;
+                    $connection["user_name"] = $msgArr->user_name;
+
                     //Se ubica toda la información del canal especificado
                     //Para pasarla al PHP y que el mismo la dibuje
                     $channel = $this->channelController->Find($msgArr->channel_id);
@@ -110,7 +113,7 @@ class App
                     //mantiene el control en caliente de los mismos
                     $this->channels->push($channel);
 
-                    $from->send(Util::Ok([
+                    $connection["connection"]->send(Util::Ok([
                         "channel"=>$channel
                     ]));
                     break;
@@ -132,32 +135,34 @@ class App
                     $newMessage->channel_id = $msgArr->channel_id;
 
                     //Creamos el mensaje y obtenemos una instancia con el nuevo ID
-                    $mensajeAgregado = $this->messageController->Create($newMessage); 
+                    $mensajeAgregado = $this->messageController->Create($newMessage);
                     
                     //Obtenemos los usuarios del channel
-                    $usuariosDelChannel = $this->userController->GetByChannel($msgArr->channel_id);
+                    $theChannel = new Channel();
+                    $theChannel->channel_id = $msgArr->channel_id;
 
-                    //Filtramos el array anterior para que sólo 
-                    //queden los usuarios del channel que no son el sender
-                    $filtredUsers = array_filter($usuariosDelChannel, function($elem) use($msgArr)
-                    {
-                        return $elem->user_id != $msgArr->usuario_id;
-                    });
+                    $resUsersByChannel = $this->userController->GetByChannel($theChannel);
+                    
+                    $destinatarios = [];
 
-                    //Buscamos los resources correspondientes a cada usuario al que 
-                    //se le enviará el mensaje y procedemos al envío del mismo
-                    foreach ($filtredUsers as $item) 
+                    foreach ($resUsersByChannel as $user) 
                     {
-                        $encontrado = $this->usuariosConectados->first(function($elem) use($item){
-                            return $elem->user_id == $item->user_id && $elem->channel_id == $item->channel_id;
+                        $destinatario = array_filter($this->connections, function($conn) use($user, $theChannel)
+                        {
+                            return $user->user_id == $conn["user_id"] && $conn["channel_id"] == $theChannel->channel_id;
                         });
-                        $encontrado->resource->send(Util::Ok([
+                        if(count($destinatario) != 0)
+                            $destinatarios[] = reset($destinatario);
+                    }
+                    
+                    foreach ($destinatarios as $to) 
+                    {
+                        $connection = $to["connection"];
+                        $connection->send(Util::Ok([
                             "new_message" => $mensajeAgregado
                         ]));
-                    }                
-
-                    //Finalmente le envío el mensaje con el ID generado al usuario 
-                    $from->send(Util::Ok($mensajeAgregado));
+                    }
+                    
                     break;
 
                 case 'NEW_CHANNEL':     
@@ -169,9 +174,7 @@ class App
 
                     //Creo un objeto de channel 
                     //con los parámetros pasados por el usuario
-                    $channel = new Channel();
-                    $channel->channel_id = $this->channelController->Create($msgArr->channel_name);
-                    $channel->channel_name = $msgArr->channel_name;
+                    $channel = $this->channelController->Create($msgArr->channel_name);
                     
                     //Por cada usuario pasado por el usuario, como participante del canal en cuestión, 
                     //Lo busco a ver si no está creado. En caso contrario lo creo.
@@ -191,6 +194,11 @@ class App
 
                         $channel->users[] = $theUser;
                     }                   
+
+                    foreach ($channel->users as $user) 
+                    {
+                        $this->channelController->AddUserToChannel($user, $channel->channel_id);
+                    }
 
                     //Agrego el channel recién creado a la variable HOT de channels
                     $this->channels->push($channel);
@@ -215,7 +223,7 @@ class App
     {
         try 
         {
-            $this->connections->detach($conn);
+            unset($this->connections[spl_object_hash($conn)]);
 
             echo "Connection {$conn->resourceId} has disconnected*************************************************\n\n";
         } 

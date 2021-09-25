@@ -7,7 +7,7 @@ use RatchetChat\Domain\User;
 
 class ChannelRepository
 {
-    private $dbContext;
+    private $db;
 
     public function __construct($context)
     {

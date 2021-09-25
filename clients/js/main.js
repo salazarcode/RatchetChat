@@ -5,7 +5,9 @@ socket.onopen = function (e) {
     console.log("Enviando al servidor");
     socket.send(JSON.stringify({
         "procedure" : "GET_CHANNEL",
-        "channel_id" : 12
+        "user_id" : 2,
+        "user_name" : "Adrián",
+        "channel_id" : 18
     }));
 };
 
@@ -16,8 +18,8 @@ document.forms.publish.onsubmit = function (e) {
     e.preventDefault();
     let outgoingMessage = {
         "procedure" : "ADD_MESSAGE",
-        "channel_id" : 12,
-        "usuario_id" : 1,
+        "channel_id" : 18,
+        "user_id" : 2,
         "text" : this.message.value
     }
 
